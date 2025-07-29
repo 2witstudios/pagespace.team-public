@@ -1,0 +1,1 @@
+ALTER TABLE "assistant_messages" ADD COLUMN "toolCallActioned" boolean DEFAULT false NOT NULL;

@@ -1,0 +1,10 @@
+# This Dockerfile is for running database migrations.
+# It includes all dev dependencies needed for the migration script.
+FROM node:22.17.0-alpine
+WORKDIR /app
+
+# Copy the entire monorepo context to the container
+COPY . .
+
+# Install all dependencies, including dev dependencies
+RUN corepack enable && pnpm install --frozen-lockfile --prod=false

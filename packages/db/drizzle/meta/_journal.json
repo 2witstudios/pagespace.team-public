@@ -1,0 +1,104 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1752363484316,
+      "tag": "0000_cute_machine_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1752503852250,
+      "tag": "0001_melted_glorian",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752508351601,
+      "tag": "0002_add_provider_override_to_ai_chats",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1752530171969,
+      "tag": "0003_overrated_blockbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1752886434364,
+      "tag": "0004_salty_boomerang",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1753334620302,
+      "tag": "0005_real_iceman",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1753385644478,
+      "tag": "0006_steady_natasha_romanoff",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1753548279177,
+      "tag": "0007_unusual_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1753588266698,
+      "tag": "0008_peaceful_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1753635124781,
+      "tag": "0009_chunky_red_shift",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1753682695853,
+      "tag": "0010_wet_magdalene",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1753682912863,
+      "tag": "0011_thick_mattie_franklin",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1753730949239,
+      "tag": "0012_dizzy_molecule_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1753748760433,
+      "tag": "0013_burly_amazoness",
+      "breakpoints": true
+    }
+  ]
+}

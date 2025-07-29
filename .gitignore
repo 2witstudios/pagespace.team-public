@@ -1,0 +1,96 @@
+# ===-----------------------------------------------------------------------=== #
+# A comprehensive .gitignore for a PNPM-based monorepo with Next.js,
+# TypeScript, and Docker.
+#
+# https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# ===-----------------------------------------------------------------------=== #
+
+# --- System / Editor
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# JetBrains
+.idea/
+
+# --- Dependencies
+# Node modules
+node_modules/
+**/node_modules
+
+# PNPM
+.pnpm-store/
+
+# --- Build Artifacts & Caches
+# General
+build/
+dist/
+out/
+
+# Next.js
+.next/
+
+# Turborepo
+.turbo/
+
+# ESLint
+.eslintcache
+
+# --- Compiled Code
+# This project uses TypeScript and compiles to JavaScript in-place.
+# These files should not be versioned.
+# If you have any handwritten JavaScript files, you can
+# explicitly un-ignore them with a `!` rule.
+# e.g., !apps/web/public/some-script.js
+*.js
+*.js.map
+
+# --- Logs & Temp Files
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids/
+*.pid
+*.pid.lock
+
+# --- Local Secrets
+# Ignore all .env files
+.env
+.env.*
+!.env.example
+
+# Also ignore .env files in subdirectories
+**/.env
+**/.env.*
+!**/.env.example
+
+# --- Database
+# Drizzle Studio local database
+drizzle-studio.sqlite
+
+# --- Custom Ignores
+.roomodes
+docs/external/
+docs/completed/
+docs/archives/
+docs/plans/*
+docs/legacy
+docs/archive/

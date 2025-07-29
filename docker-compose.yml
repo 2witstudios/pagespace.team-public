@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:17.5-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=pagespace
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d pagespace"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/pagespace
+    command: >
+      sh -c "
+        pnpm run db:migrate &&
+        echo 'Migrations complete, starting services...'
+      "
+
+  seed:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.seed
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/pagespace
+    command: >
+      sh -c "
+        pnpm --filter @pagespace/db db:seed &&
+        echo 'Database seeded successfully!'
+      "
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/pagespace
+      - NEXT_PUBLIC_REALTIME_URL=http://localhost:3001
+
+  realtime:
+    build:
+      context: .
+      dockerfile: apps/realtime/Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/pagespace
+      - PORT=3001
+      - CORS_ORIGIN=${NEXT_PUBLIC_REALTIME_URL}
+
+volumes:
+  postgres_data:
