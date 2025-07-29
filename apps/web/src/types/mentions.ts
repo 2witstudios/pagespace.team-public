@@ -14,7 +14,7 @@ export interface PageMentionData {
 }
 
 export interface UserMentionData {
-  email: string;
+  email?: string;
   avatar?: string;
 }
 

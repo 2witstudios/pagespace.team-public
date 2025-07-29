@@ -3,13 +3,15 @@
 import { useEffect } from 'react';
 import { useAiSettings } from '@/hooks/useAiSettings';
 import { useAssistantStore } from '@/stores/useAssistantStore';
+import { useDriveStore } from '@/hooks/useDrive';
 import { ChatSettings } from '../../middle-content/content-header/ChatSettings';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
 export default function AssistantSettings() {
-  const { activeConversationId, model, setModel } = useAssistantStore();
+  const { activeConversationId, model, setModel, createConversation } = useAssistantStore();
+  const { currentDriveId } = useDriveStore();
   
   const aiSettings = useAiSettings({
     conversationId: activeConversationId || undefined,
@@ -32,21 +34,23 @@ export default function AssistantSettings() {
 
   const handleModelChange = async (newModel: string) => {
     try {
-      // Update the store immediately for UI responsiveness
       setModel(newModel);
       
-      // If there's an active conversation, persist the model to the backend
-      if (activeConversationId) {
-        await aiSettings.updateModel(newModel);
-        toast.success('Model updated successfully!');
+      let conversationId = activeConversationId;
+      if (!conversationId) {
+        if (!currentDriveId) {
+          toast.error("No active drive. Please select a drive first.");
+          return;
+        }
+        conversationId = await createConversation(currentDriveId, newModel);
       }
+      
+      await aiSettings.updateModel(newModel);
+      toast.success('Model updated successfully!');
     } catch (error) {
       console.error('Failed to update model:', error);
       toast.error('Failed to update model.');
-      // Revert the store change if backend update failed
-      if (activeConversationId) {
-        setModel(aiSettings.currentSettings?.model || aiSettings.suggestedDefaultModel || 'ollama:qwen3:8b');
-      }
+      setModel(aiSettings.currentSettings?.model || aiSettings.suggestedDefaultModel || 'ollama:qwen3:8b');
     }
   };
 

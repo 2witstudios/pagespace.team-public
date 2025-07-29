@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { decodeToken, getUserAccessLevel } from '@pagespace/lib/server';
 import { parse } from 'cookie';
-import { pages, users, assistantConversations, db, and, eq, ilike, or } from '@pagespace/db';
+import { pages, users, assistantConversations, db, and, eq, ilike, drives, groups, groupMemberships, inArray } from '@pagespace/db';
 import { MentionSuggestion, MentionType } from '@/types/mentions';
 
 export async function GET(request: Request) {
@@ -94,31 +94,53 @@ export async function GET(request: Request) {
 
     // Search users (if user mentions are requested)
     if (requestedTypes.includes('user')) {
+      // 1. Get the drive to identify the owner
+      const driveResults = await db.select({ ownerId: drives.ownerId }).from(drives).where(eq(drives.id, driveId)).limit(1);
+      const drive = driveResults[0];
+      
+      if (!drive) {
+        // This should not happen if driveId is validated, but as a safeguard:
+        return new NextResponse('Drive not found', { status: 404 });
+      }
+
+      // 2. Create a set of authorized user IDs, starting with the drive owner
+      const authorizedUserIds = new Set<string>([drive.ownerId]);
+
+      // 3. Find all groups within the drive
+      const driveGroups = await db.select({ id: groups.id }).from(groups).where(eq(groups.driveId, driveId));
+
+      // 4. If groups exist, find all their members and add them to the set
+      if (driveGroups.length > 0) {
+        const groupIds = driveGroups.map(g => g.id);
+        const members = await db.select({ userId: groupMemberships.userId }).from(groupMemberships).where(inArray(groupMemberships.groupId, groupIds));
+        members.forEach(m => authorizedUserIds.add(m.userId));
+      }
+
+      // 5. Search for users only within the authorized set and only by name
       const userResults = await db.select({
         id: users.id,
         name: users.name,
-        email: users.email,
         image: users.image,
       })
       .from(users)
       .where(
-        query ? or(
-          ilike(users.name, `%${query}%`),
-          ilike(users.email, `%${query}%`)
-        ) : undefined
+        and(
+          inArray(users.id, Array.from(authorizedUserIds)),
+          query ? ilike(users.name, `%${query}%`) : undefined
+        )
       )
       .limit(5);
 
+      // 6. Create suggestions without exposing email addresses
       for (const user of userResults) {
         suggestions.push({
           id: user.id,
-          label: user.name || user.email,
+          label: user.name || 'Unnamed User', // Fallback for users without a name
           type: 'user',
           data: {
-            email: user.email,
             avatar: user.image || undefined,
           },
-          description: user.email,
+          description: 'User', // Generic, non-private description
         });
       }
     }

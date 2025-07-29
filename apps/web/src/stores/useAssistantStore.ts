@@ -16,6 +16,7 @@ interface AssistantState {
   setAssistantMode: (mode: 'write' | 'ask') => void;
   setModel: (model: string) => void;
   setActiveConversation: (id: string | null) => void;
+  createConversation: (driveId: string, model: string) => Promise<string>;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
   clearConversation: () => void;
@@ -30,6 +31,19 @@ export const useAssistantStore = create<AssistantState>((set) => ({
   setAssistantMode: (mode) => set({ assistantMode: mode }),
   setModel: (model) => set({ model }),
   setActiveConversation: (id) => set({ activeConversationId: id, messages: [], isLoading: true }),
+  createConversation: async (driveId: string, model: string) => {
+    const response = await fetch('/api/ai/ai-assistant/conversations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ driveId, model }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create conversation');
+    }
+    const newConversation = await response.json();
+    set({ activeConversationId: newConversation.id, messages: [], isLoading: false });
+    return newConversation.id;
+  },
   setMessages: (messages) => set({ messages, isLoading: false }),
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   clearConversation: () => set({ activeConversationId: null, messages: [] }),

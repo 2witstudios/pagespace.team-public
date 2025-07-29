@@ -48,3 +48,51 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 });
   }
 }
+
+import { z } from 'zod';
+import { nanoid } from 'nanoid';
+
+const postSchema = z.object({
+  driveId: z.string(),
+  model: z.string(),
+});
+
+export async function POST(request: Request) {
+  try {
+    const cookieHeader = request.headers.get('cookie');
+    const cookies = parse(cookieHeader || '');
+    const accessToken = cookies.accessToken;
+
+    if (!accessToken) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const decoded = await decodeToken(accessToken);
+    if (!decoded) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const userId = decoded.userId;
+
+    const body = await request.json();
+    const { driveId, model } = postSchema.parse(body);
+
+    const newConversation = await db
+      .insert(assistantConversations)
+      .values({
+        id: nanoid(),
+        userId,
+        driveId,
+        model,
+        title: 'New Conversation',
+      })
+      .returning();
+
+    return NextResponse.json(newConversation[0]);
+  } catch (error) {
+    console.error('[CONVERSATIONS_POST]', error);
+    if (error instanceof z.ZodError) {
+      return new NextResponse(JSON.stringify(error.issues), { status: 400 });
+    }
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
